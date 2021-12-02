@@ -10,6 +10,18 @@
   </head>
 
   <body>
+    <section class="container">
+          <nav role="navigation">
+            <ul>
+              <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started with Phoenix</a></li>
+              <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
+                <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
+              <% end %>
+            </ul>
+          </nav>
+          <h1 style="text-align: center">Why Elixir – Live Demo</h1>
+      </section>
+
     <%= yield %>
   </body>
 </html>
