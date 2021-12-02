@@ -5,7 +5,7 @@ class ApplicationController < ActionController::API
 
         sum = sum_numbers(n)
 
-        render plain: "asd #{sum}"
+        render plain: "#{sum}"
     end
 
     def sum_numbers(n)

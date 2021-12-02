@@ -1,0 +1,91 @@
+<script>
+let count = 0
+const ERROR = "ERROR!";
+
+function get_id() { return window.performance.now().toFixed(2).toString().replace(".", ""); }
+
+function compute_sum(n=1, color='green') {
+  let elem_id = get_id();
+  let resultTable = document.getElementById("results");
+  let rowNode = resultTable.insertRow(0);
+  rowNode.style = "background-color: " + color;
+  let labelNode = rowNode.insertCell();
+  let valueNode = rowNode.insertCell();
+  let timingNode = rowNode.insertCell();
+
+  labelNode.innerHTML = "∑ (0.." + n.toLocaleString() + ")";
+  valueNode.innerHTML = "Calculating...";
+  valueNode.id = "result_" + elem_id;
+  timingNode.id = "timing_" + elem_id;
+
+  let start = window.performance.now();
+  count += 1;
+  document.getElementById("pending").innerHTML = count;
+
+  const get_result = async (n) => {
+    let text;
+    try {
+      const response = await fetch('http://localhost:3000/summing?n=' + n, options = {});
+      text = await response.text();
+      console.log(text)
+    } catch (error) {
+      text = ERROR;
+    } finally {
+      let stop = window.performance.now();
+      let waitingResult = document.getElementById(valueNode.id);
+      let waitingTime = document.getElementById(timingNode.id);
+      if (waitingResult && waitingTime) {
+        waitingResult.innerHTML = text == ERROR ? text : parseInt(text).toLocaleString();
+        waitingTime.innerHTML = (stop - start).toLocaleString();
+        count -= 1;
+        document.getElementById("pending").innerHTML = count;
+      }
+    }
+
+  };
+  get_result(n);
+}
+
+function reset() {
+  count = 0;
+  document.getElementById('results').innerHTML = '';
+  document.getElementById("pending").innerHTML = count;
+}
+
+function jitter(n, p=0.1) {
+  return Math.round(n * (1 + p * (Math.random() - 0.5)))
+}
+</script>
+
+<section>
+  <label style="display: inline; margin-right: 0.5em;">∑(0..n)</label>
+  <button type="button" onclick="compute_sum(1, '#e6fffa')" style="background-color: #e6fffa; color: black">Fastest &#183; n=1</button>
+  <button type="button" onclick="compute_sum(jitter(1_000_000), ' #e6ffe6')" style="background-color: #e6ffe6; color: black">Fast &#183; n=10⁶</button>
+  <button type="button" onclick="compute_sum(jitter(1_000_000_000), '#ffffe6')" style="background-color: #ffffe6; color: black">Slow &#183; n=10⁹</button>
+  <button type="button" onclick="compute_sum(-1, '#ffe6e6')" style="background-color: #ffe6e6; color: black">Infinite &#183; n=-1</button>
+  <button type="button" onclick="reset()" style="margin-left: 1em;">Reset</button>
+</section>
+
+<section>
+  <dl id="result-pending">
+    <dt>Pending Requests</dt>
+    <dd id="pending">0</dd>
+  </dl>
+
+  <table id="result-table">
+    <colgroup>
+      <col style="width:30%">
+      <col style="width:50%">
+      <col style="width:20%">
+    </colgroup>
+    <thead>
+    <tr>
+      <th>Calculation</th>
+      <th>Value</th>
+      <th>Timing / ms</th>
+    </tr>
+    </thead>
+    <tbody id="results">
+    </tbody>
+  </table>
+</section>
